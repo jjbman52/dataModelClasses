@@ -16,8 +16,8 @@ namespace DataModelClasses
             );
             routes.MapRoute(
                 name: "SearchProduct",
-                url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Product", action = "ProductSearch", id = UrlParameter.Optional }
+                url: "{controller}/{action}/{order}",
+                defaults: new { controller = "Product", action = "ProductSearch", order = UrlParameter.Optional }
             );
             routes.MapRoute(
                 name: "SpecificProduct",

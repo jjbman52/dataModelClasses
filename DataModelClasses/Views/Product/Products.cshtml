@@ -44,20 +44,63 @@
 <input type="hidden" id="id" value="@ViewBag.id" />
 <input type="hidden" id="str" value="@ViewBag.SearchString" />
 
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Add to Cart?</h4>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xs-5"><strong>Product</strong></div>
+                            <div class="col-xs-2"><strong>Price</strong></div>
+                            <div class="col-xs-2"><strong>Quantity</strong></div>
+                            <div class="col-xs-3 text-right"><strong>Total</strong></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-5 pad-top" id="ProductName"></div>
+                            <div class="col-xs-2 pad-top">
+                                $<span id="UnitPrice"></span>
+                            </div>
+                            <div class="col-xs-2">
+                                <input type="number" min="1" value="1" id="Quantity" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="AddToCart">
+                    Continue
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
 @section scripts
 {
     <script>
         $(function () {
+            var str = "";
             showModelCount(@Model.Count())
             $('#up, #down').click(function () {
                 var str = "ascending";
 
-                if (this.id = "down") {
+                if (this.id == "down") {
                     var str = "decending";
                 }
 
                 var id = $('#id').val() ? "/" + $('#id').val() : "";
-                var URL = "@Url.Content("~")Product/SortProducts";
+                var URL = "@Url.Content("~")Product/SortProducts/" + str;
 
                 var productArea = document.querySelector("#products");
 
@@ -69,7 +112,7 @@
 			                        ${data.map(i => `
 				                        <tr class="product-row" id="${i.ProductID}">
 					                        <td><span id="name_${i.ProductID}">${i.ProductName}</span> (${i.QuantityPerUnit})</td>
-					                        <td class="text-right">$<span id="price_${i.ProductID}">${i.UnitPrice}</span></td>
+					                        <td class="text-right">$<span id="price_${i.ProductID}">${(i.UnitPrice).toFixed(2)}</span></td>
 					                        <td class="text-right">${i.UnitsInStock}</td>
 				                        </tr>
 			                        `).join('')}
@@ -84,12 +127,64 @@
                     });
             });
 
-            $('#products').on('click', '.product-row', function () {
-                alert(this.id);
+             $('#products').on('click', '.product-row', function () {
+                // handle error if customer is not authenticated
+                
+                 ProductID = this.id;
+
+                    $('#ProductName').html($('#name_' + ProductID).html());
+                    $('#UnitPrice').html($('#price_' + ProductID).html());
+                    // set product quantity = 1
+                    $('#Quantity').val(1);
+                    // calculate and display total in modal
+                    $('#Quantity').change();
+                    // display modal
+                    $('#myModal').modal();
+                
+            });
+
+            $('#stock').click(function () {
+
+                if (str == "ascending") {
+                    str = "decending";
+                } else {
+                    str = "ascending";
+                }
+
+                var id = $('#id').val() ? "/" + $('#id').val() : "";
+                var URL = "@Url.Content("~")Product/SortProducts/" + str;
+
+                var productArea = document.querySelector("#products");
+
+                $.getJSON(URL)
+                    .always(function (data, textStatus, statusObject) {
+                        if (statusObject.status == 200) {
+                            // 200 OK
+                            var template = `
+			                        ${data.map(i => `
+                                                <tr class="product-row" id="${i.ProductID}">
+					                            <td><span id="name_${i.ProductID}">${i.ProductName}</span> (${i.QuantityPerUnit})</td>
+					                            <td class="text-right">$<span id="price_${i.ProductID}">${(i.UnitPrice).toFixed(2)}</span></td>
+					                            <td class="text-right">${i.UnitsInStock}</td>
+                                                </tr>
+			                        `).join('')}
+		                        `;
+                            productArea.innerHTML = template;
+                            showModelCount(data.length);
+                        } else {
+                            // Error
+                            console.log("Http response code: " + data.status);
+                            console.log("Http response: " + data.statusText);
+                        }
+                    });
             });
 
             function showModelCount(modelCount) {
                 $('#modelCountDisplay').html(modelCount + " products");
+            }
+
+            function formatRow(length) {
+                
             }
         });
     </script>
