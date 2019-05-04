@@ -10,5 +10,6 @@
         public int QuantityPerUnit { get; set; }
         public double UnitPrice { get; set; }
         public int UnitsInStock { get; set; }
+        public int UnitsOnOrder { get; set; }
     }
 }

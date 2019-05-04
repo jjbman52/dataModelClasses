@@ -148,6 +148,7 @@
     </Compile>
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\CategoryContext.cs" />
+    <Compile Include="Models\ProductDTO.cs" />
     <Compile Include="Models\CustomerEdit.cs" />
     <Compile Include="Models\CustomerSignIn.cs" />
     <Compile Include="Models\IContext.cs" />
