@@ -104,7 +104,16 @@ namespace DataModelClasses.Controllers
                         FormsAuthentication.SetAuthCookie(customer.CustomerID.ToString(), false);
 
                         HttpCookie cookie = new HttpCookie("role");
-                        cookie.Value = "customer";
+
+                        if (customer.Role == 0)
+                        {
+                            cookie.Value = "customer";
+                        }
+                        else if (customer.Role == 1)
+                        {
+                            cookie.Value = "vendor";
+                        }
+
                         Response.Cookies.Add(cookie);
 
                         if (ReturnUrl != null)

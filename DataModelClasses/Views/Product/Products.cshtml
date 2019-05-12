@@ -6,6 +6,7 @@
 }
 
 <table class="table table-hover table-responsive">
+    <h1>Order Products</h1>
     <thead>
         <tr class="font-md">
             <th>@ViewBag.Filter</th>
@@ -17,12 +18,12 @@
     <tbody id="products">
         @foreach (Product p in Model)
         {
-        <tr class="product-row" id="@p.ProductID">
-            <td><span id="name_@p.ProductID">@p.ProductName</span> (@p.QuantityPerUnit)</td>
-            <td class="text-right">@string.Format("{0:c}", p.UnitPrice)</td>
-            <td class="text-right"><span id="unitsInStock_@p.ProductID">@p.UnitsInStock</span></td>
-            <td class="text-right"><span id="onOrder_@p.ProductID">@p.UnitsOnOrder</span></td>
-        </tr>
+            <tr class="product-row" id="@p.ProductID">
+                <td><span id="name_@p.ProductID">@p.ProductName</span> (@p.QuantityPerUnit)</td>
+                <td class="text-right">@string.Format("{0:c}", p.UnitPrice)</td>
+                <td class="text-right"><span id="unitsInStock_@p.ProductID">@p.UnitsInStock</span></td>
+                <td class="text-right"><span id="onOrder_@p.ProductID">@p.UnitsOnOrder</span></td>
+            </tr>
         }
     </tbody>
 </table>
@@ -74,7 +75,7 @@
                 <button type="button" class="btn btn-danger" data-dismiss="modal">
                     Cancel
                 </button>
-                <button type="button" class="btn btn-primary" id="AddToCart">
+                <button type="button" class="btn btn-primary" id="UpdateOrder">
                     Continue
                 </button>
             </div>
@@ -88,163 +89,171 @@
     $(function () {
         var str = "";
         showModelCount(@Model.Count())
-        $('#up, #down').click(function () {
-            var str = "ascending";
-
-            if (this.id == "down") {
-                var str = "decending";
-            }
-
-            var id = $('#id').val() ? "/" + $('#id').val() : "";
-            var URL = "@Url.Content("~")Product/SortProducts/" + str;
-
-            var productArea = document.querySelector("#products");
-
-            $.getJSON(URL)
-                .always(function (data, textStatus, statusObject) {
-                    if (statusObject.status == 200) {
-                        // 200 OK
-
-                        $('#products').html('');
-                        for (i = 0; i < data.length; i++) {
-                            var str = '';
-
-                            str = jsonStringbuilder(data, i);
-
-                            $('#products').append(str);
-                        }
-
-                        showModelCount(data.length);
-                    } else {
-                        // Error
-                        console.log("Http response code: " + data.status);
-                        console.log("Http response: " + data.statusText);
-                    }
-                });
-        });
-
-        $('#products').on('click', '.product-row', function () {
-
-            ProductID = this.id;
-
-            $('#ProductName').html($('#name_' + ProductID).html());
-            $('#UnitsInStock').html($('#unitsInStock_' + ProductID).html());
-            $('#Quantity').val($('#onOrder_' + ProductID).html());
-            // calculate and display total in modal
-            $('#Quantity').change();
-            // display modal
-            $('#myModal').modal();
-
-        });
-
-        function jsonStringbuilder(data, i) {
-            var format = "";
-
-            if (data[i].UnitsInStock < 5 || data[i].UnitsInStock < 15 && data[i].UnitsOnOrder < 10) {
-                format = "alert alert-danger";
-            } else if (data[i].UnitsInStock > 10) {
-                format = "alert alert-info";
-            } else {
-                format = "alert alert-warning";
-            }
-            var str = "<tr class='product-row " + format + "' id='" + data[i].ProductID + "'>";
-
-            str += "<td><span id='name_" + data[i].ProductID + "'>" + data[i].ProductName + "</span> (" + data[i].QuantityPerUnit + ")</td>";
-            str += "<td class='text-right'>" + data[i].UnitPrice.toFixed(2) + "</td>";
-
-            str += "<td class='text-right'><span id='unitsInStock_" + data[i].ProductID + "'>" + data[i].UnitsInStock + "</span></td>";
-            str += "<td class='text-right'><span id='onOrder_" + data[i].ProductID + "'>" + data[i].UnitsOnOrder + "</span></td>";
-            str += "</tr>";
-
-            return str;
-        }
-
-        $('#stock').click(function () {
-
-            if (str == "ascending") {
-                str = "decending";
-            } else {
-                str = "ascending";
-            }
-
-            var id = $('#id').val() ? "/" + $('#id').val() : "";
-            var URL = "@Url.Content("~")Product/SortProducts/" + str;
-
-            var productArea = document.querySelector("#products");
-
-            $.getJSON(URL)
-                .always(function (data, textStatus, statusObject) {
-                    if (statusObject.status == 200) {
-                        // 200 OK
-
-                        $('#products').html('');
-                        for (i = 0; i < data.length; i++) {
-                            var str = '';
-
-                            str = jsonStringbuilder(data, i);
-
-                            $('#products').append(str);
-                        }
-
-                        showModelCount(data.length);
-                    } else {
-                        // Error
-                        console.log("Http response code: " + data.status);
-                        console.log("Http response: " + data.statusText);
-                    }
-                });
-        });
 
         function showModelCount(modelCount) {
             $('#modelCountDisplay').html(modelCount + " products");
         }
 
-        $('#AddToCart').click(function () {
-            // hide modal
-            $('#myModal').modal('hide');
+        if (document.cookie.toString() == "role=vendor") {
 
-            var URL = "@Url.Content("~")Product/Order";
-            $.post(URL, { ProductID: ProductID, Quantity: $('#Quantity').val() })
-                .always(function (data, textStatus, statusObject) {
+            $('#up, #down').click(function () {
+                str = "ascending";
 
-                    var id = $('#id').val() ? "/" + $('#id').val() : "";
-                    var URL = "@Url.Content("~")Product/SortProducts/" + str;
+                if (this.id == "down") {
+                    str = "decending";
+                }
 
-            var productArea = document.querySelector("#products");
+                var id = $('#id').val() ? "/" + $('#id').val() : "";
 
-            $.getJSON(URL)
-                .always(function (data, textStatus, statusObject) {
-                    if (statusObject.status == 200) {
-                        // 200 OK
 
-                        $('#products').html('');
-                        for (i = 0; i < data.length; i++) {
-                            var str = '';
+                var URL = "@Url.Content("~")Product/SortProducts/" + str;
 
-                            str = jsonStringbuilder(data, i);
+                var productArea = document.querySelector("#products");
 
-                            $('#products').append(str);
+                $.getJSON(URL)
+                    .always(function (data, textStatus, statusObject) {
+                        if (statusObject.status == 200) {
+                            // 200 OK
+
+                            $('#products').html('');
+                            for (i = 0; i < data.length; i++) {
+                                var str = '';
+
+                                str = jsonStringbuilder(data, i);
+
+                                $('#products').append(str);
+                            }
+
+                            showModelCount(data.length);
+                        } else {
+                            // Error
+                            console.log("Http response code: " + data.status);
+                            console.log("Http response: " + data.statusText);
                         }
+                    });
+            });
 
-                        showModelCount(data.length);
-                    } else {
-                        // Error
-                        console.log("Http response code: " + data.status);
-                        console.log("Http response: " + data.statusText);
-                    }
-                });
+            $('#products').on('click', '.product-row', function () {
 
-                    if (statusObject.status == 200) {
+                ProductID = this.id;
 
-                        console.log($('#name_' + ProductID).html() + ' updated')
+                $('#ProductName').html($('#name_' + ProductID).html());
+                $('#UnitsInStock').html($('#unitsInStock_' + ProductID).html());
+                $('#Quantity').val($('#onOrder_' + ProductID).html());
+                // calculate and display total in modal
+                $('#Quantity').change();
+                // display modal
+                $('#myModal').modal();
 
-                    } else {
+            });
 
-                        console.log("Http response code: " + data.status);
-                        console.log("Http response: " + data.statusText);
-                    }
-                });
-        });
+            function jsonStringbuilder(data, i) {
+                var format = "";
+
+                if (data[i].UnitsInStock < 5 || data[i].UnitsInStock < 15 && data[i].UnitsOnOrder < 10) {
+                    format = "alert alert-danger";
+                } else if (data[i].UnitsInStock > 10) {
+                    format = "alert alert-info";
+                } else {
+                    format = "alert alert-warning";
+                }
+                var str = "<tr class='product-row " + format + "' id='" + data[i].ProductID + "'>";
+
+                str += "<td><span id='name_" + data[i].ProductID + "'>" + data[i].ProductName + "</span> (" + data[i].QuantityPerUnit + ")</td>";
+                str += "<td class='text-right'>" + data[i].UnitPrice.toFixed(2) + "</td>";
+
+                str += "<td class='text-right'><span id='unitsInStock_" + data[i].ProductID + "'>" + data[i].UnitsInStock + "</span></td>";
+                str += "<td class='text-right'><span id='onOrder_" + data[i].ProductID + "'>" + data[i].UnitsOnOrder + "</span></td>";
+                str += "</tr>";
+
+                return str;
+            }
+
+            $('#stock').click(function () {
+
+                if (str == "ascending") {
+                    str = "decending";
+                } else {
+                    str = "ascending";
+                }
+
+                var id = $('#id').val() ? "/" + $('#id').val() : "";
+                var URL = "@Url.Content("~")Product/SortProducts/" + str;
+
+                var productArea = document.querySelector("#products");
+
+                $.getJSON(URL)
+                    .always(function (data, textStatus, statusObject) {
+                        if (statusObject.status == 200) {
+                            // 200 OK
+
+                            $('#products').html('');
+                            for (i = 0; i < data.length; i++) {
+                                var str = '';
+
+                                str = jsonStringbuilder(data, i);
+
+                                $('#products').append(str);
+                            }
+
+                            showModelCount(data.length);
+                        } else {
+                            // Error
+                            console.log("Http response code: " + data.status);
+                            console.log("Http response: " + data.statusText);
+                        }
+                    });
+            });
+
+            
+
+            $('#UpdateOrder').click(function () {
+                // hide modal
+                $('#myModal').modal('hide');
+
+                var URL = "@Url.Content("~")Product/Order";
+                $.post(URL, { ProductID: ProductID, Quantity: $('#Quantity').val() })
+                    .always(function (data, textStatus, statusObject) {
+
+                        var id = $('#id').val() ? "/" + $('#id').val() : "";
+                        var URL = "@Url.Content("~")Product/SortProducts/" + str;
+
+                        var productArea = document.querySelector("#products");
+
+                        $.getJSON(URL)
+                            .always(function (data, textStatus, statusObject) {
+                                if (statusObject.status == 200) {
+                                    // 200 OK
+
+                                    $('#products').html('');
+                                    for (i = 0; i < data.length; i++) {
+                                        var str = '';
+
+                                        str = jsonStringbuilder(data, i);
+
+                                        $('#products').append(str);
+                                    }
+
+                                    showModelCount(data.length);
+                                } else {
+                                    // Error
+                                    console.log("Http response code: " + data.status);
+                                    console.log("Http response: " + data.statusText);
+                                }
+                            });
+
+                        if (statusObject.status == 200) {
+
+                            console.log($('#name_' + ProductID).html() + ' updated')
+
+                        } else {
+
+                            console.log("Http response code: " + data.status);
+                            console.log("Http response: " + data.statusText);
+                        }
+                    });
+            });
+        }
     });
 </script>
 }

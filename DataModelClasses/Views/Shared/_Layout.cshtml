@@ -21,17 +21,44 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <!-- Products -->
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <i class="glyphicon glyphicon-barcode"></i>&nbsp;Products<span class="caret"></span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a href="@Url.Action("ProductSearch","Product")"><i class="glyphicon glyphicon-search"></i>&nbsp;Product Search</a></li>
-                            <li><a href="@Url.Action("Index","Category")"><i class="glyphicon glyphicon-list"></i>&nbsp;Browse Categories</a></li>
-                            <li><a href="@Url.Action("Index","Discount") "><i class="glyphicon glyphicon-gift"></i>&nbsp;Current Discounts</a></li>
-                        </ul>
-                    </li>
+                    @if (Request.IsAuthenticated)
+                    {
+                        HttpCookie aCookie = Request.Cookies["Role"];
+                        string lang = Server.HtmlEncode(aCookie.Value);
+
+                        if (lang.Equals("vendor"))
+                        {
+
+                            <!-- Products -->
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-database"></i> Products<span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu" id="NavbarProducts">
+                                    <li><a href="@Url.Action("ProductSearch","Product")"><i class="glyphicon glyphicon-search"></i>&nbsp;Product Search</a></li>
+                                    <li><a href="@Url.Action("Index","Category")"><i class="glyphicon glyphicon-list"></i>&nbsp;Browse Categories</a></li>
+                                    <li><a href="@Url.Action("Index","Discount") "><i class="glyphicon glyphicon-gift"></i>&nbsp;Current Discounts</a></li>
+                                    <li><a href="~/Product/Products"><i class="fa fa-sign-out"></i> Manage Products</a></li>
+                                </ul>
+                            </li>
+                        }
+                        else if (lang.Equals("customer"))
+                        {
+
+                            <!-- Products -->
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa fa-database"></i> Products<span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu" id="NavbarProducts">
+                                    <li><a href="@Url.Action("ProductSearch","Product")"><i class="glyphicon glyphicon-search"></i>&nbsp;Product Search</a></li>
+                                    <li><a href="@Url.Action("Index","Category")"><i class="glyphicon glyphicon-list"></i>&nbsp;Browse Categories</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="@Url.Action("Index","Discount") "><i class="glyphicon glyphicon-gift"></i>&nbsp;Current Discounts</a></li>
+                                </ul>
+                            </li>
+                        }
+                    }
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                             <i class="glyphicon glyphicon-user"></i>Customers<span class="caret"></span>
@@ -46,7 +73,7 @@
                             <li><a href="@Url.Action("Account","Customer")"><i class="glyphicon glyphicon-user"></i>&nbsp;Your Account</a></li>
                         </ul>
                     </li>
-                    <form class="navbar-form navbar-left hidden-xs" role="search" method="get" action="@Url.Action("Index","Product")">
+                    <form class="navbar-form navbar-left hidden-xs" role="search" method="post" action="@Url.Action("Index","Product")">
                         @Html.AntiForgeryToken()
                         <div class="form-group">
                             <input type="text" class="form-control" name="SearchString" id="SearchString" placeholder="Product Search">
@@ -59,12 +86,6 @@
                             <li><a href="~/Home/SignOut"><i class="fa fa-sign-out"></i> Sign Out</a></li>
                         </ul>
                     }
-                    @if (Request.IsAuthenticated)
-                    {
-                        <ul class="nav navbar-nav navbar-right">
-                            <li><a href="~/Product/Products"><i class="fa fa-sign-out"></i> Manage Products</a></li>
-                        </ul>
-                    }
                 </ul>
             </div>
         </div>
@@ -73,7 +94,7 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Jordan Rehbein</p>
+            <p>&copy; @DateTime.Now.Year - Northwind</p>
         </footer>
     </div>
 

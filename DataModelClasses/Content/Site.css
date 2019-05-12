@@ -42,11 +42,16 @@ textarea {
 #nav-footer {
     background-color: #cbdeff;
     border-top: 1px solid grey;
-    padding-bottom: 10px;
+    padding-bottom: 15px;
     padding-top: 10px;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+footer {
+    padding-bottom: 40px;
+    text-align: center;
 }

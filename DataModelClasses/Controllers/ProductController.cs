@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Net;
+using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 using DataModelClasses.DataLayer;
 using DataModelClasses.Models;
 using Northwind.Configuration;
@@ -40,6 +42,7 @@ namespace DataModelClasses.Controllers
             }
         }
 
+        [Authorize]
         public ActionResult Products()
         {
             using (var db = new NorthwindEntities())
@@ -49,6 +52,7 @@ namespace DataModelClasses.Controllers
             }
         }
 
+        [Authorize]
         public JsonResult SortProducts(string order)
         {
             using (var db = new NorthwindEntities())
@@ -80,6 +84,7 @@ namespace DataModelClasses.Controllers
             }
         }
 
+        [Authorize]
         public ActionResult ProductByCategory(int? id, string SearchString)
         {
             ViewBag.Filter = "Products";
@@ -107,25 +112,20 @@ namespace DataModelClasses.Controllers
                 return View("Index", products.OrderBy(p => p.ProductName).ToList());
             }
         }
-
+        
+        [Authorize]
         public ActionResult Order(ProductDTO productDTO)
         {
-            // For future version, make sure that an authenticated user is a customer
-            if (Request.Cookies["role"].Value != "customer")
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                using (var db = new NorthwindEntities())
+                {
+                    var product = db.Products.SingleOrDefault(p => p.ProductID == productDTO.ProductID);
 
-            using (var db = new NorthwindEntities())
-            {
-                var product = db.Products.SingleOrDefault(p => p.ProductID == productDTO.ProductID);
+                    product.UnitsOnOrder = productDTO.Quantity;
 
-                product.UnitsOnOrder = productDTO.Quantity;
+                    db.SaveChanges();
 
-                db.SaveChanges();
-
-                return Json(product, JsonRequestBehavior.AllowGet);
-            }
+                    return Json(productDTO, JsonRequestBehavior.AllowGet);
+                }
         }
     }
 }
