@@ -32,7 +32,7 @@ namespace DataModelClasses.Controllers
             using (var db = new NorthwindEntities())
             {
                 Customer customer = db.Customers.Find(UserAccount.GetUserID());
-                
+
                 CustomerEdit EditCustomer = new CustomerEdit()
                 {
                     CompanyName = customer.CompanyName,
@@ -81,7 +81,7 @@ namespace DataModelClasses.Controllers
         {
             using (var db = new NorthwindEntities())
             {
-                ViewBag.CustomerId = new SelectList(db.Customers.OrderBy(c=>c.CompanyName), "CustomerID", "CompanyName").ToList();
+                ViewBag.CustomerId = new SelectList(db.Customers.OrderBy(c => c.CompanyName), "CustomerID", "CompanyName").ToList();
                 return View();
             }
         }
@@ -121,7 +121,8 @@ namespace DataModelClasses.Controllers
                             return Redirect(ReturnUrl);
                         }
                         return RedirectToAction("Index", "Home");
-                    } else
+                    }
+                    else
                     {
                         ModelState.AddModelError("Password", "Incorrect password");
                     }
@@ -129,7 +130,7 @@ namespace DataModelClasses.Controllers
                     ViewBag.CustomerId = new SelectList(db.Customers.OrderBy(c => c.CompanyName), "CustomerID", "CompanyName").ToList();
                 }
             }
-                return View();
+            return View();
         }
 
         [Authorize]
